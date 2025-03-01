@@ -45,7 +45,8 @@ function interpreter(ast) {
         if (node[0] === "ASSIGN") {
             variables[node[1]] = node[2][1];
         } else if (node[0] === "PRINT") {
-            output += (variables[node[1][1]] || "Nedifinita") + "\n";
+            let varName = node[1][1];
+            output += (varName in variables ? variables[varName] : "Nedifinita") + "\n";
         }
     });
 
@@ -59,4 +60,24 @@ function runEsperantoCode() {
     const output = interpreter(ast);
 
     document.getElementById("esperantoOutput").innerText = output;
+    highlightEsperantoCode();
 }
+
+function highlightEsperantoCode() {
+    const codeElement = document.getElementById("esperantoCode");
+    const keywords = {
+        "estas": "assign",
+        "plus": "operator",
+        "montru": "print",
+        "dum": "loop",
+        "se": "condition"
+    };
+
+    let highlightedCode = codeElement.value
+        .replace(/\b(estas|plus|montru|dum|se)\b/g, match => `<span class="${keywords[match]}">${match}</span>`)
+        .replace(/\b\d+\b/g, match => `<span class="number">${match}</span>`)
+        .replace(/\b[a-zA-Z_]\w*\b/g, match => `<span class="variable">${match}</span>`);
+
+    document.getElementById("highlightedCode").innerHTML = highlightedCode;
+}
+
