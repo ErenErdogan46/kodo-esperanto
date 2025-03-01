@@ -8,20 +8,39 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background-color: #121212;
+            color: white;
             padding: 20px;
         }
 
-        textarea {
+        h1 {
+            color: #00bcd4;
+        }
+
+        #editor-container {
             width: 90%;
-            height: 150px;
-            font-size: 16px;
-            font-family: monospace;
-            border: 1px solid #ccc;
+            margin: auto;
+            text-align: left;
+            border: 1px solid #444;
             border-radius: 5px;
             padding: 10px;
-            background: white;
-            margin-bottom: 10px;
+            background: #1e1e1e;
+            min-height: 200px;
+            color: white;
+            font-family: monospace;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        #esperantoCode {
+            outline: none;
+            width: 100%;
+            min-height: 200px;
+            font-size: 16px;
+            font-family: monospace;
+            background: transparent;
+            border: none;
+            color: white;
         }
 
         button {
@@ -30,19 +49,20 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            background-color: #28a745;
+            background-color: #00bcd4;
             color: white;
+            margin-top: 10px;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #0097a7;
         }
 
         pre {
             width: 90%;
             min-height: 50px;
-            background: #333;
-            color: #fff;
+            background: #1e1e1e;
+            color: #00ff00;
             padding: 10px;
             border-radius: 5px;
             text-align: left;
@@ -51,39 +71,40 @@
             font-family: monospace;
         }
 
-        /* Renklendirme stilleri */
-        .assign { color: blue; font-weight: bold; }
-        .operator { color: red; font-weight: bold; }
-        .print { color: green; font-weight: bold; }
-        .loop { color: purple; font-weight: bold; }
-        .condition { color: orange; font-weight: bold; }
-        .number { color: darkcyan; font-weight: bold; }
-        .variable { color: brown; }
-        #highlightedCode { white-space: pre-wrap; font-family: monospace; }
+        .keyword {
+            color: #ffa500;
+            font-weight: bold;
+        }
 
-        /* Footer */
+        .error {
+            text-decoration: underline;
+            text-decoration-color: red;
+            text-decoration-thickness: 2px;
+        }
+
         footer {
             margin-top: 20px;
             font-size: 14px;
-            color: #555;
+            color: #bbb;
         }
     </style>
 </head>
 <body>
     <h1>Esperanto Programado - Retkompililo</h1>
     
-    <textarea id="esperantoCode" placeholder="Skribu vian kodon ĉi tie..." oninput="highlightEsperantoCode()"></textarea>
+    <div id="editor-container">
+        <div id="esperantoCode" contenteditable="true" spellcheck="false" oninput="highlightCode(); checkErrors();"></div>
+    </div>
+    
     <button onclick="runEsperantoCode()">Ruli</button>
-
-    <h3>Kolorigita Kodo</h3>
-    <pre id="highlightedCode"></pre>
 
     <h3>Rezulto</h3>
     <pre id="esperantoOutput"></pre>
 
-    <footer>Farita de <span style="color:blue;">Eren Erdogan</span></footer>
+    <footer>Farita de <span style="color:#00bcd4;">Aŭuv</span></footer>
 
     <script src="compiler.js"></script>
 </body>
 </html>
+
 
