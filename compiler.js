@@ -1,8 +1,15 @@
+const keywords = {
+    "estas": "ASSIGN",
+    "plus": "ADD",
+    "montru": "PRINT",
+    "dum": "WHILE",
+    "se": "IF"
+};
+
 function lexer(code) {
     const tokens = [];
     const words = code.split(/\s+/);
-    const keywords = { "estas": "ASSIGN", "plus": "ADD", "montru": "PRINT", "dum": "WHILE", "se": "IF" };
-
+    
     words.forEach(word => {
         if (!isNaN(word)) {
             tokens.push(["NUMBER", Number(word)]);
@@ -54,30 +61,45 @@ function interpreter(ast) {
 }
 
 function runEsperantoCode() {
-    const code = document.getElementById("esperantoCode").value;
+    const code = document.getElementById("esperantoCode").innerText;
     const tokens = lexer(code);
     const ast = parser(tokens);
     const output = interpreter(ast);
 
     document.getElementById("esperantoOutput").innerText = output;
-    highlightEsperantoCode();
 }
 
-function highlightEsperantoCode() {
-    const codeElement = document.getElementById("esperantoCode");
-    const keywords = {
-        "estas": "assign",
-        "plus": "operator",
-        "montru": "print",
-        "dum": "loop",
-        "se": "condition"
-    };
-
-    let highlightedCode = codeElement.value
-        .replace(/\b(estas|plus|montru|dum|se)\b/g, match => `<span class="${keywords[match]}">${match}</span>`)
-        .replace(/\b\d+\b/g, match => `<span class="number">${match}</span>`)
-        .replace(/\b[a-zA-Z_]\w*\b/g, match => `<span class="variable">${match}</span>`);
-
-    document.getElementById("highlightedCode").innerHTML = highlightedCode;
+// Kod içindeki renklendirmeyi günceller
+function highlightCode() {
+    const editor = document.getElementById("esperantoCode");
+    let code = editor.innerText;
+    
+    code = code.replace(/\b(estas|montru|plus|dum|se)\b/g, '<span class="keyword">$1</span>');
+    editor.innerHTML = code;
 }
+
+// Kullanıcının yanlış yazdığı kelimeleri belirler
+function checkErrors() {
+    const editor = document.getElementById("esperantoCode");
+    let words = editor.innerText.split(/\s+/);
+    
+    words = words.map(word => {
+        if (!keywords[word] && isNaN(word) && word !== "") {
+            return `<span class="error">${word}</span>`;
+        }
+        return word;
+    });
+
+    editor.innerHTML = words.join(" ");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const editor = document.getElementById("esperantoCode");
+
+    editor.addEventListener("input", function () {
+        highlightCode();
+        checkErrors();
+    });
+});
+
 
