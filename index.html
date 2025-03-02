@@ -4,53 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esperanto Koda Redaktilo</title>
+    
+    <!-- CodeMirror Kütüphaneleri -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/theme/dracula.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/javascript/javascript.min.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #282a36; color: #f8f8f2; }
-        #editor { width: 80%; height: 300px; border: 1px solid #ccc; margin: 0 auto; }
-        .CodeMirror { height: 300px; text-align: left; }
-        button { margin-top: 10px; padding: 10px 20px; background: #50fa7b; border: none; cursor: pointer; color: black; }
-        pre { background: #44475a; padding: 10px; text-align: left; color: #f8f8f2; }
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background: #282a36; 
+            color: #f8f8f2; 
+        }
+        #buyMeCoffee {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ffdd57;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        #buyMeCoffee img {
+            width: 20px;
+            margin-right: 5px;
+        }
+        #closeCoffee {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+            color: #333;
+        }
+        #editor { 
+            width: 80%; 
+            height: 250px; 
+            border: 1px solid #ccc; 
+            margin: 0 auto; 
+        }
+        .CodeMirror { 
+            height: 250px; 
+            text-align: left; 
+            font-size: 12px;  
+            line-height: 1; 
+        }
+        button { 
+            margin-top: 10px; 
+            padding: 10px 20px; 
+            background: #50fa7b; 
+            border: none; 
+            cursor: pointer; 
+            color: black; 
+        }
+        pre { 
+            background: #44475a; 
+            padding: 10px; 
+            text-align: left; 
+            color: #f8f8f2; 
+            min-height: 50px; 
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        input { 
+            background: #44475a; 
+            color: #f8f8f2; 
+            border: none; 
+            padding: 5px; 
+            width: 100%; 
+        }
     </style>
 </head>
 <body>
+    <div id="buyMeCoffee">
+        <img src="https://cdn-icons-png.flaticon.com/512/873/873120.png" alt="☕">
+        <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank">Buy Me a Coffee</a>
+        <button id="closeCoffee">✖</button>
+    </div>
+
     <h2>Esperanto Koda Redaktilo</h2>
     <textarea id="editor"></textarea>
     <br>
     <button onclick="runCode()">Ruli Kodo</button>
     <pre id="output"></pre>
-    
+    <input id="inputField" type="text" placeholder="Enigu vian respondon..." style="display:none;" />
+
     <script>
+        document.getElementById("closeCoffee").addEventListener("click", function() {
+            document.getElementById("buyMeCoffee").style.display = "none";
+        });
+
         var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
             lineNumbers: true,
             mode: "javascript",
             theme: "dracula"
         });
 
-        editor.setValue("// Bonvenon al la Esperanto-Koda Redaktilo!\n" +
-                        "// Jen simpla ekzemplo:\n" +
-                        "funkcio cxefa() {\n" +
-                        "    diru('Saluton, Mondo!');\n" +
-                        "    redonu 0;\n" +
-                        "}\n" +
-                        "cxefa();");
+        editor.setValue(`// Bonvenon al la Esperanto-Koda Redaktilo!
+// Jen ekzemplo:
+funkcio cxefa() {
+    teksto nomo = legu("Bonvolu enigi vian nomon: ");
+    diru("Saluton, " + nomo + "!");
+    redonu 0;
+}
+cxefa();`);
 
         function esperantoToJS(code) {
             return code
-                .replace(/funkcio\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, "function $1(") // Funkcio → function
-                .replace(/diru\s*\((.*?)\);/g, "console.log($1);") // diru → console.log
-                .replace(/redonu/g, "return"); // redonu → return
+                .replace(/funkcio\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, "async function $1(")
+                .replace(/diru\s*\((.*?)\);/g, "console.log($1);")
+                .replace(/redonu/g, "return")
+                .replace(/cxefa/g, "main")
+                .replace(/\bvera\b/g, "true")
+                .replace(/\bmalvera\b/g, "false")
+                .replace(/\bentjera\b/g, "let")
+                .replace(/\bdecimalo\b/g, "let")
+                .replace(/\blitero\b/g, "let")
+                .replace(/\bteksto\b/g, "let")
+                .replace(/legu\s*\((.*?)\);/g, "await getUserInput($1);")
+                .replace(/main\(\);/g, "await main();");
         }
 
-        function runCode() {
+        function getUserInput(promptText) {
+            return new Promise(resolve => {
+                document.getElementById("output").innerText += promptText + "\n";
+                let inputField = document.getElementById("inputField");
+                inputField.style.display = "block";
+                inputField.focus();
+                inputField.onkeydown = function(event) {
+                    if (event.key === "Enter") {
+                        resolve(inputField.value);
+                        inputField.style.display = "none";
+                        document.getElementById("output").innerText += "→ " + inputField.value + "\n";
+                        inputField.value = "";
+                    }
+                };
+            });
+        }
+
+        async function runCode() {
             let code = editor.getValue();
             let jsCode = esperantoToJS(code);
             try {
-                let output = new Function(jsCode)();
-                document.getElementById("output").innerText = output ?? "Kodo sukcese rulita!";
+                let outputElement = document.getElementById("output");
+                outputElement.innerText = "";
+                let originalConsoleLog = console.log;
+                let outputText = "";
+
+                console.log = function(message) {
+                    outputText += message + "\n";
+                    outputElement.innerText = outputText;
+                };
+
+                let asyncFunction = new Function(`return (async () => {${jsCode}})()`);
+                await asyncFunction();
+
+                console.log = originalConsoleLog;
             } catch (error) {
                 document.getElementById("output").innerText = "Eraro: " + error.message;
             }
@@ -58,4 +175,3 @@
     </script>
 </body>
 </html>
-
