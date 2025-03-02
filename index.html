@@ -19,32 +19,6 @@
             background: #282a36; 
             color: #f8f8f2; 
         }
-        #buyMeCoffee {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: #ffdd57;
-            color: #333;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        #buyMeCoffee img {
-            width: 20px;
-            margin-right: 5px;
-        }
-        #closeCoffee {
-            background: transparent;
-            border: none;
-            font-size: 16px;
-            margin-left: 10px;
-            cursor: pointer;
-            color: #333;
-        }
         #editor { 
             width: 80%; 
             height: 250px; 
@@ -54,8 +28,12 @@
         .CodeMirror { 
             height: 250px; 
             text-align: left; 
-            font-size: 12px;  
-            line-height: 1; 
+            font-size: 14px;  /* Daha okunaklı yazı boyutu */
+            line-height: 1.2; /* Daha sıkı satır aralığı */
+        }
+        .CodeMirror-cursor { 
+            width: 1px !important; /* İnce imleç */
+            height: 16px !important; /* Standart yükseklik */
         }
         button { 
             margin-top: 10px; 
@@ -72,7 +50,7 @@
             color: #f8f8f2; 
             min-height: 50px; 
             white-space: pre-wrap;
-            font-size: 12px;
+            font-size: 14px;
         }
         input { 
             background: #44475a; 
@@ -81,13 +59,37 @@
             padding: 5px; 
             width: 100%; 
         }
+        /* Buy Me a Coffee butonu */
+        #coffee-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ffdd57;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        #coffee-container a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        #close-coffee {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <div id="buyMeCoffee">
-        <img src="https://cdn-icons-png.flaticon.com/512/873/873120.png" alt="☕">
-        <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank">Buy Me a Coffee</a>
-        <button id="closeCoffee">✖</button>
+
+    <!-- Buy Me a Coffee Butonu -->
+    <div id="coffee-container">
+        <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank">☕ Buy Me a Coffee</a>
+        <button id="close-coffee">✖</button>
     </div>
 
     <h2>Esperanto Koda Redaktilo</h2>
@@ -98,10 +100,6 @@
     <input id="inputField" type="text" placeholder="Enigu vian respondon..." style="display:none;" />
 
     <script>
-        document.getElementById("closeCoffee").addEventListener("click", function() {
-            document.getElementById("buyMeCoffee").style.display = "none";
-        });
-
         var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
             lineNumbers: true,
             mode: "javascript",
@@ -119,7 +117,7 @@ cxefa();`);
 
         function esperantoToJS(code) {
             return code
-                .replace(/funkcio\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, "async function $1(")
+                .replace(/funkcio\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, "function $1(")
                 .replace(/diru\s*\((.*?)\);/g, "console.log($1);")
                 .replace(/redonu/g, "return")
                 .replace(/cxefa/g, "main")
@@ -129,8 +127,7 @@ cxefa();`);
                 .replace(/\bdecimalo\b/g, "let")
                 .replace(/\blitero\b/g, "let")
                 .replace(/\bteksto\b/g, "let")
-                .replace(/legu\s*\((.*?)\);/g, "await getUserInput($1);")
-                .replace(/main\(\);/g, "await main();");
+                .replace(/legu\s*\((.*?)\);/g, "await getUserInput($1);");
         }
 
         function getUserInput(promptText) {
@@ -164,14 +161,18 @@ cxefa();`);
                     outputElement.innerText = outputText;
                 };
 
-                let asyncFunction = new Function(`return (async () => {${jsCode}})()`);
-                await asyncFunction();
-
+                await (new Function(`return (async () => {${jsCode}})()`)());
                 console.log = originalConsoleLog;
             } catch (error) {
                 document.getElementById("output").innerText = "Eraro: " + error.message;
             }
         }
+
+        // "Buy Me a Coffee" butonunu kapatma fonksiyonu
+        document.getElementById("close-coffee").addEventListener("click", function() {
+            document.getElementById("coffee-container").style.display = "none";
+        });
+
     </script>
 </body>
 </html>
