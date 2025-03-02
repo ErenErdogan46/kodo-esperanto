@@ -5,22 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esperanto Koda Redaktilo</title>
     
-    <!-- CodeMirror -->
+    <!-- CodeMirror Kütüphaneleri -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/theme/dracula.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/javascript/javascript.min.js"></script>
 
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #282a36; color: #f8f8f2; }
-        #editor { width: 80%; height: 250px; border: 1px solid #ccc; margin: 0 auto; }
-        .CodeMirror { height: 250px; text-align: left; font-size: 14px; line-height: 1.0; } /* Satır aralığı kısaltıldı */
-        button { margin-top: 10px; padding: 10px 20px; background: #50fa7b; border: none; cursor: pointer; color: black; }
-        pre { background: #44475a; padding: 10px; text-align: left; color: #f8f8f2; min-height: 50px; white-space: pre-wrap; font-size: 14px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background: #282a36; 
+            color: #f8f8f2; 
+        }
+        #editor { 
+            width: 80%; 
+            height: 250px; 
+            border: 1px solid #ccc; 
+            margin: 0 auto; 
+        }
+        .CodeMirror { 
+            height: 250px; 
+            text-align: left; 
+            font-size: 12px;  
+            line-height: 1; 
+            padding: 0;
+            margin: 0;
+        }
+        .CodeMirror-cursor { 
+            width: 2px !important; 
+            height: 10px !important; 
+        }
+        button { 
+            margin-top: 10px; 
+            padding: 10px 20px; 
+            background: #50fa7b; 
+            border: none; 
+            cursor: pointer; 
+            color: black; 
+        }
+        pre { 
+            background: #44475a; 
+            padding: 10px; 
+            text-align: left; 
+            color: #f8f8f2; 
+            min-height: 50px; 
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
-
     <h2>Esperanto Koda Redaktilo</h2>
     <textarea id="editor"></textarea>
     <br>
@@ -28,48 +64,51 @@
     <pre id="output"></pre>
 
     <script>
+        // CodeMirror başlat
         var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
             lineNumbers: true,
             mode: "javascript",
             theme: "dracula"
         });
 
-        editor.setValue(`// Bonvenon al la Esperanto-Koda Redaktilo!
-// Jen ekzemplo:
-funkcio cxefa() {
-    teksto nomo = legu("Bonvolu enigi vian nomon:");
-    diru("Saluton, " + nomo + "!");
-}
-cxefa();`);
+        // Varsayılan kod
+        editor.setValue(`// Bonvenon al la Esperanto-Koda Redaktilo!\n// Jen ekzemplo:\nfunkcio cxefa() {\n    teksto nomo = legu("Bonvolu enigi vian nomon: ");\n    diru("Saluton, " + nomo + "!");\n    redonu 0;\n}\ncxefa();`);
 
+        // Esperanto'dan JavaScript'e çevirme fonksiyonu
         function esperantoToJS(code) {
             return code
-                .replace(/funkcio\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, "function $1(")
-                .replace(/diru\s*\((.*?)\);/g, "console.log($1);")
+                .replace(/funkcio\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, "function $1(") 
+                .replace(/diru\s*\((.*?)\);/g, "console.log($1);") 
+                .replace(/redonu/g, "return") 
+                .replace(/cxefa/g, "main") 
+                .replace(/\bvera\b/g, "true")
+                .replace(/\bmalvera\b/g, "false")
+                .replace(/\bentjera\b/g, "let")
+                .replace(/\bdecimalo\b/g, "let")
+                .replace(/\blitero\b/g, "let")
                 .replace(/\bteksto\b/g, "let")
-                .replace(/\blegu\s*\((.*?)\);/g, "prompt($1)");
+                .replace(/legu\s*\((.*?)\);/g, "prompt($1);");
         }
 
+        // Kodu çalıştır ve sonucu göster
         function runCode() {
             let code = editor.getValue();
             let jsCode = esperantoToJS(code);
-            let outputElement = document.getElementById("output");
-            outputElement.innerText = "";
-            let originalConsoleLog = console.log;
-            let outputText = "";
-
-            console.log = function(message) {
-                outputText += message + "\n";
-                outputElement.innerText = outputText;
-            };
-
             try {
-                let func = new Function(`"use strict"; ${jsCode}`);
-                func();
-            } catch (error) {
-                outputElement.innerText = "Eraro: " + error.message;
-            } finally {
+                let outputElement = document.getElementById("output");
+                let originalConsoleLog = console.log;
+                let outputText = "";
+
+                console.log = function(message) {
+                    outputText += message + "\n";
+                };
+
+                new Function(jsCode)();
+                outputElement.innerText = outputText || "Kodo sukcese rulita!";
+
                 console.log = originalConsoleLog;
+            } catch (error) {
+                document.getElementById("output").innerText = "Eraro: " + error.message;
             }
         }
     </script>
